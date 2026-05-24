@@ -1,0 +1,26 @@
+name: lpapi_printer
+description: Flutter BLE label-printer client compatible with DothanTech LPAPI printer behavior.
+version: 0.1.0
+homepage: https://github.com/tonylu00/DALI-Toolkit
+repository: https://github.com/tonylu00/DALI-Toolkit
+issue_tracker: https://github.com/tonylu00/DALI-Toolkit/issues
+topics:
+  - bluetooth
+  - ble
+  - printer
+  - label
+
+environment:
+  sdk: ^3.9.2
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  qr_flutter: ^4.1.0
+  universal_ble: ^2.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
