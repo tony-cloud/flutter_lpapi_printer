@@ -3,6 +3,7 @@
 `lpapi_printer` is a Flutter BLE label-printer client modeled after the DothanTech LPAPI Android SDK.
 It uses `universal_ble` for transport, implements LPAPI packet framing, discovers compatible BLE
 printers by SDK-style device names, and can rasterize Flutter drawing jobs into printer command bytes.
+This package writes in pure Dart, so it is portable to any platform supported by `universal_ble`, but it only implements the BLE transport at this time.
 
 ## Features
 
