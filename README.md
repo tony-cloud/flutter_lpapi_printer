@@ -20,6 +20,7 @@ This package writes in pure Dart, so it is portable to any platform supported by
 ```dart
 final client = LpPrinterClient();
 
+await client.requestPermissions();
 await client.startScan();
 final printers = await client.discoveredPrintersStream.first;
 await client.connect(printers.first);
@@ -56,6 +57,26 @@ await api.commitJob();
 
 For pre-rendered label images, use `LpPrinterClient.printPng` or
 `LpPrinterClient.printImage` directly.
+
+## Permissions
+
+`lpapi_printer` uses `universal_ble` for BLE scanning and connections, so your
+app must configure the platform Bluetooth permissions required by
+`universal_ble` before calling scan or connect APIs. Runtime permission requests
+can be made through this package:
+
+```dart
+final client = LpPrinterClient();
+
+await client.requestPermissions(
+  withAndroidFineLocation: false,
+);
+
+final granted = await client.hasPermissions();
+```
+
+See the `universal_ble` permission guide:
+https://pub.dev/packages/universal_ble#permissions
 
 ## Notes
 

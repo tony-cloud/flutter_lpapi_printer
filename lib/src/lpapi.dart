@@ -35,6 +35,18 @@ class LpApi {
 
   LpPrinterState getPrinterState() => client.printerState;
 
+  Future<bool> hasPermissions({bool withAndroidFineLocation = false}) {
+    return client.hasPermissions(
+      withAndroidFineLocation: withAndroidFineLocation,
+    );
+  }
+
+  Future<void> requestPermissions({bool withAndroidFineLocation = false}) {
+    return client.requestPermissions(
+      withAndroidFineLocation: withAndroidFineLocation,
+    );
+  }
+
   Future<void> discovery() => client.startScan();
 
   Future<void> stopDiscovery() => client.stopScan();

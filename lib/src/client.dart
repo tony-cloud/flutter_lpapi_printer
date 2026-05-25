@@ -61,6 +61,18 @@ class LpPrinterClient {
 
   bool get isConnected => _state.group == 2 && _connectedAddress != null;
 
+  Future<bool> hasPermissions({bool withAndroidFineLocation = false}) {
+    return _adapter.hasPermissions(
+      withAndroidFineLocation: withAndroidFineLocation,
+    );
+  }
+
+  Future<void> requestPermissions({bool withAndroidFineLocation = false}) {
+    return _adapter.requestPermissions(
+      withAndroidFineLocation: withAndroidFineLocation,
+    );
+  }
+
   Future<void> startScan() async {
     _discoveredPrinters.clear();
     _seenDeviceIds.clear();

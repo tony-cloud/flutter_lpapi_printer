@@ -9,9 +9,15 @@ abstract class LpBleAdapter {
   Stream<bool> connectionStream(String deviceId);
 
   Stream<Uint8List> characteristicValueStream(
-      String deviceId, String characteristicId);
+    String deviceId,
+    String characteristicId,
+  );
 
   Future<AvailabilityState> getBluetoothAvailabilityState();
+
+  Future<bool> hasPermissions({bool withAndroidFineLocation = false});
+
+  Future<void> requestPermissions({bool withAndroidFineLocation = false});
 
   Future<void> startScan();
 
@@ -21,14 +27,22 @@ abstract class LpBleAdapter {
 
   Future<void> disconnect(String deviceId, {Duration? timeout});
 
-  Future<List<BleService>> discoverServices(String deviceId,
-      {bool withDescriptors = false});
+  Future<List<BleService>> discoverServices(
+    String deviceId, {
+    bool withDescriptors = false,
+  });
 
   Future<void> subscribeNotifications(
-      String deviceId, String service, String characteristic);
+    String deviceId,
+    String service,
+    String characteristic,
+  );
 
   Future<Uint8List> read(
-      String deviceId, String service, String characteristic);
+    String deviceId,
+    String service,
+    String characteristic,
+  );
 
   Future<void> write(
     String deviceId,
@@ -55,13 +69,29 @@ class UniversalBleLpAdapter implements LpBleAdapter {
 
   @override
   Stream<Uint8List> characteristicValueStream(
-      String deviceId, String characteristicId) {
+    String deviceId,
+    String characteristicId,
+  ) {
     return UniversalBle.characteristicValueStream(deviceId, characteristicId);
   }
 
   @override
   Future<AvailabilityState> getBluetoothAvailabilityState() {
     return UniversalBle.getBluetoothAvailabilityState();
+  }
+
+  @override
+  Future<bool> hasPermissions({bool withAndroidFineLocation = false}) {
+    return UniversalBle.hasPermissions(
+      withAndroidFineLocation: withAndroidFineLocation,
+    );
+  }
+
+  @override
+  Future<void> requestPermissions({bool withAndroidFineLocation = false}) {
+    return UniversalBle.requestPermissions(
+      withAndroidFineLocation: withAndroidFineLocation,
+    );
   }
 
   @override
@@ -81,22 +111,35 @@ class UniversalBleLpAdapter implements LpBleAdapter {
   }
 
   @override
-  Future<List<BleService>> discoverServices(String deviceId,
-      {bool withDescriptors = false}) {
-    return UniversalBle.discoverServices(deviceId,
-        withDescriptors: withDescriptors);
+  Future<List<BleService>> discoverServices(
+    String deviceId, {
+    bool withDescriptors = false,
+  }) {
+    return UniversalBle.discoverServices(
+      deviceId,
+      withDescriptors: withDescriptors,
+    );
   }
 
   @override
   Future<void> subscribeNotifications(
-      String deviceId, String service, String characteristic) {
+    String deviceId,
+    String service,
+    String characteristic,
+  ) {
     return UniversalBle.subscribeNotifications(
-        deviceId, service, characteristic);
+      deviceId,
+      service,
+      characteristic,
+    );
   }
 
   @override
   Future<Uint8List> read(
-      String deviceId, String service, String characteristic) {
+    String deviceId,
+    String service,
+    String characteristic,
+  ) {
     return UniversalBle.read(deviceId, service, characteristic);
   }
 

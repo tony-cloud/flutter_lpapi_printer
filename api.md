@@ -28,16 +28,17 @@ Not implemented by this package:
 - Wi-Fi
 - NFC
 - Android WebView JavaScript bridge
-- Android permission request helpers
 
-Apps must request the platform Bluetooth permissions required by their target
-platform before scanning or connecting.
+Apps must still declare the platform Bluetooth permissions required by
+`universal_ble`, but runtime permission checks and requests are exposed through
+`lpapi_printer`.
 
 ## Basic Workflow
 
 ```dart
 final client = LpPrinterClient();
 
+await client.requestPermissions();
 await client.startScan();
 final printers = await client.discoveredPrintersStream.first;
 await client.connect(printers.first);
@@ -72,6 +73,8 @@ printing.
 | --- | --- |
 | `startScan()` | Start BLE scan. Supported printers are emitted on `discoveredPrintersStream`. |
 | `stopScan()` | Stop BLE scan. |
+| `hasPermissions(...)` | Check runtime BLE permissions through `universal_ble`. |
+| `requestPermissions(...)` | Request runtime BLE permissions through `universal_ble`. |
 | `connect(LpPrinterAddress address)` | Connect to a discovered printer. |
 | `disconnect()` | Disconnect the current printer. |
 | `reconnect()` | Reconnect the current remembered address. |
@@ -125,6 +128,13 @@ Connection helpers:
 | `waitPrinterState(state, millis)` | `waitPrinterState(LpPrinterState state, int millis)` |
 | `cancel()` | `cancel()` clears the current drawing job. |
 | `quit()` | `quit()` disposes the client. |
+
+Permission helpers:
+
+| Flutter API | Purpose |
+| --- | --- |
+| `hasPermissions({withAndroidFineLocation})` | Check runtime BLE permissions. |
+| `requestPermissions({withAndroidFineLocation})` | Request runtime BLE permissions. Throws if the user denies required permissions. |
 
 Printing helpers:
 

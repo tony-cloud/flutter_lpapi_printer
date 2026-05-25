@@ -106,6 +106,18 @@ void main() {
     expect(package, contains(0x28));
     expect(adapter.writes.every((write) => write.withoutResponse), isTrue);
   });
+
+  test('wraps universal BLE permission APIs through the client', () async {
+    final adapter = _FakeBleAdapter();
+    final client = LpPrinterClient(adapter: adapter);
+    addTearDown(client.dispose);
+
+    expect(await client.hasPermissions(withAndroidFineLocation: true), isFalse);
+    await client.requestPermissions(withAndroidFineLocation: true);
+
+    expect(adapter.hasPermissionChecks, <bool>[true]);
+    expect(adapter.permissionRequests, <bool>[true]);
+  });
 }
 
 Future<ui.Image> _largeImage() {
@@ -134,6 +146,8 @@ class _FakeBleAdapter implements LpBleAdapter {
       StreamController<bool>.broadcast();
   final Map<int, Object> mtuResponses = <int, Object>{};
   final List<int> mtuRequests = <int>[];
+  final List<bool> hasPermissionChecks = [];
+  final List<bool> permissionRequests = [];
   final List<
     ({
       String service,
@@ -193,6 +207,12 @@ class _FakeBleAdapter implements LpBleAdapter {
       AvailabilityState.poweredOn;
 
   @override
+  Future<bool> hasPermissions({bool withAndroidFineLocation = false}) async {
+    hasPermissionChecks.add(withAndroidFineLocation);
+    return false;
+  }
+
+  @override
   Future<Uint8List> read(
     String deviceId,
     String service,
@@ -203,6 +223,13 @@ class _FakeBleAdapter implements LpBleAdapter {
 
   @override
   Future<void> requestHighConnectionPriority(String deviceId) async {}
+
+  @override
+  Future<void> requestPermissions({
+    bool withAndroidFineLocation = false,
+  }) async {
+    permissionRequests.add(withAndroidFineLocation);
+  }
 
   @override
   Future<int> requestMtu(String deviceId, int expectedMtu) async {
