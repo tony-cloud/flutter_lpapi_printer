@@ -237,7 +237,7 @@ final options = LpPrintOptions.fromParamMap({
 | --- | ---: | --- |
 | `minPrintDarkness` | `0` | Minimum density. |
 | `defaultPrintDarkness` | `5` | Default density. |
-| `maxPrintDarkness` | `14` | Maximum density. |
+| `maxPrintDarkness` | `14` | Documented SDK maximum. When a connected printer reports more density levels, `LpPrinterClient` maps this value to the printer's reported maximum level. |
 | `minPrintSpeed` | `0` | Slowest print speed. |
 | `defaultPrintSpeed` | `2` | Default speed. |
 | `maxPrintSpeed` | `4` | Fastest print speed. |
@@ -248,6 +248,11 @@ final options = LpPrintOptions.fromParamMap({
 | `printAlignmentLeft` | `1024` | Left-loaded paper. |
 | `printAlignmentCenter` | `512` | Center-loaded paper. |
 | `printAlignmentRight` | `0` | Right alignment. |
+
+Newer LPAPI printers can report a larger density range through
+`LpPrinterInfo.darknessCount`. For example, the Android demo bundled with the
+2026 SDK shows 20 density entries and sends raw values `0..19`. Use
+`LpPrinterInfo.maxPrintDarkness` when building your own settings UI.
 
 ### Typed Enums
 

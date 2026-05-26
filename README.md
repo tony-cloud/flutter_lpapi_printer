@@ -58,6 +58,11 @@ await api.commitJob();
 For pre-rendered label images, use `LpPrinterClient.printPng` or
 `LpPrinterClient.printImage` directly.
 
+`LpPrintParamValue.maxPrintDarkness` follows the documented LPAPI value `14`.
+When the connected printer reports a larger `darknessCount`, the client maps
+that documented max value to the printer's real maximum. Use
+`client.printerInfo?.maxPrintDarkness` for custom settings sliders.
+
 ## Permissions
 
 `lpapi_printer` uses `universal_ble` for BLE scanning and connections, so your

@@ -37,4 +37,38 @@ void main() {
     expect(options.paperType, LpPaperType.blackMark);
     expect(options.antiColor, isTrue);
   });
+
+  test('printer info normalizes SDK width in dots or millimeters', () {
+    const dotWidthInfo = LpPrinterInfo(
+      deviceName: 'LP-D1234AB12',
+      deviceAddress: 'device-1',
+      deviceDpi: 300,
+      deviceWidth: 567,
+    );
+    const mmWidthInfo = LpPrinterInfo(
+      deviceName: 'LP-D1234AB12',
+      deviceAddress: 'device-1',
+      deviceDpi: 300,
+      deviceWidth: 48,
+    );
+
+    expect(dotWidthInfo.printableWidthPx, 567);
+    expect(dotWidthInfo.deviceWidthMm, closeTo(48, 0.1));
+    expect(mmWidthInfo.printableWidthPx, 567);
+    expect(mmWidthInfo.deviceWidthMm, 48);
+  });
+
+  test('printer info exposes the device reported maximum darkness', () {
+    const info = LpPrinterInfo(
+      deviceName: 'LP-D1234AB12',
+      deviceAddress: 'device-1',
+      darknessCount: 20,
+    );
+
+    expect(info.maxPrintDarkness, 19);
+    expect(
+      const LpPrinterInfo(deviceName: 'LP-D1234AB12', deviceAddress: 'device-1').maxPrintDarkness,
+      LpPrintParamValue.maxPrintDarkness,
+    );
+  });
 }

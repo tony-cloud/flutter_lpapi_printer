@@ -39,43 +39,34 @@ void main() {
     expect(printRows?.payload, <int>[1, 0, 0xf0]);
   });
 
-  test(
-    'raster builder scales to label size and aligns within print width',
-    () async {
-      final image = await _testImage();
-      final commands = await const LpRasterCommandBuilder().buildImageCommands(
-        image,
-        options: const LpPrintOptions(
-          labelWidthMm: 25.4,
-          labelHeightMm: 12.7,
-          printableWidthPx: 384,
-          alignment: LpPrintAlignment.center,
-        ),
-      );
-      final lineBytes = commands
-          .map(LpPacket.tryDecode)
-          .firstWhere((packet) => packet?.command == 0x27);
-      final lineCount = commands
-          .map(LpPacket.tryDecode)
-          .firstWhere((packet) => packet?.command == 0x26);
+  test('raster builder scales to label size without printer-width padding', () async {
+    final image = await _testImage();
+    final commands = await const LpRasterCommandBuilder().buildImageCommands(
+      image,
+      options: const LpPrintOptions(
+        labelWidthMm: 25.4,
+        labelHeightMm: 12.7,
+        printableWidthPx: 384,
+        alignment: LpPrintAlignment.center,
+      ),
+    );
+    final lineBytes = commands
+        .map(LpPacket.tryDecode)
+        .firstWhere((packet) => packet?.command == 0x27);
+    final lineCount = commands
+        .map(LpPacket.tryDecode)
+        .firstWhere((packet) => packet?.command == 0x26);
 
-      expect(lineBytes?.payload, <int>[48]);
-      expect(lineCount?.payload, <int>[102]);
-    },
-  );
+    expect(lineBytes?.payload, <int>[38]);
+    expect(lineCount?.payload, <int>[150]);
+  });
 }
 
 Future<ui.Image> _testImage() async {
   final recorder = ui.PictureRecorder();
   final canvas = Canvas(recorder);
-  canvas.drawRect(
-    const Rect.fromLTWH(0, 0, 8, 2),
-    Paint()..color = Colors.white,
-  );
-  canvas.drawRect(
-    const Rect.fromLTWH(0, 0, 4, 2),
-    Paint()..color = Colors.black,
-  );
+  canvas.drawRect(const Rect.fromLTWH(0, 0, 8, 2), Paint()..color = Colors.white);
+  canvas.drawRect(const Rect.fromLTWH(0, 0, 4, 2), Paint()..color = Colors.black);
   final picture = recorder.endRecording();
   return picture.toImage(8, 2);
 }

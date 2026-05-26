@@ -22,8 +22,7 @@ class LpApi {
   final LpPrinterClient client;
   _LpDrawJob? _job;
 
-  Stream<List<LpPrinterAddress>> get discoveredPrintersStream =>
-      client.discoveredPrintersStream;
+  Stream<List<LpPrinterAddress>> get discoveredPrintersStream => client.discoveredPrintersStream;
 
   Stream<LpPrinterEvent> get events => client.events;
 
@@ -36,15 +35,11 @@ class LpApi {
   LpPrinterState getPrinterState() => client.printerState;
 
   Future<bool> hasPermissions({bool withAndroidFineLocation = false}) {
-    return client.hasPermissions(
-      withAndroidFineLocation: withAndroidFineLocation,
-    );
+    return client.hasPermissions(withAndroidFineLocation: withAndroidFineLocation);
   }
 
   Future<void> requestPermissions({bool withAndroidFineLocation = false}) {
-    return client.requestPermissions(
-      withAndroidFineLocation: withAndroidFineLocation,
-    );
+    return client.requestPermissions(withAndroidFineLocation: withAndroidFineLocation);
   }
 
   Future<void> discovery() => client.startScan();
@@ -63,18 +58,13 @@ class LpApi {
       return isPrinterSupported(printer.shownName, modelName);
     }
     if (printer is BleDevice) {
-      return isPrinterSupported(
-        printer.name ?? printer.rawName ?? '',
-        modelName,
-      );
+      return isPrinterSupported(printer.name ?? printer.rawName ?? '', modelName);
     }
     return isPrinterSupported(printer.toString(), modelName);
   }
 
   String getAllPrinters([String? modelName]) {
-    return getAllPrinterAddresses(
-      modelName,
-    ).map((printer) => printer.shownName).join('\n');
+    return getAllPrinterAddresses(modelName).map((printer) => printer.shownName).join('\n');
   }
 
   List<LpPrinterAddress> getAllPrinterAddresses([String? modelName]) {
@@ -111,8 +101,7 @@ class LpApi {
     return true;
   }
 
-  Future<bool> openPrinterByAddressSync(LpPrinterAddress address) =>
-      openPrinterByAddress(address);
+  Future<bool> openPrinterByAddressSync(LpPrinterAddress address) => openPrinterByAddress(address);
 
   Future<void> closePrinter() => client.disconnect();
 
@@ -132,11 +121,7 @@ class LpApi {
     if (client.printerState == state) return true;
     try {
       await client.events
-          .where(
-            (event) =>
-                event.type == LpPrinterEventType.stateChanged &&
-                event.state == state,
-          )
+          .where((event) => event.type == LpPrinterEventType.stateChanged && event.state == state)
           .first
           .timeout(Duration(milliseconds: millis));
       return true;
@@ -145,27 +130,19 @@ class LpApi {
     }
   }
 
-  Future<void> setPrintPageGapType(int value) =>
-      client.setPrintPageGapType(value);
+  Future<void> setPrintPageGapType(int value) => client.setPrintPageGapType(value);
 
-  Future<void> setPrintPageGapLength(int value) =>
-      client.setPrintPageGapLength(value);
+  Future<void> setPrintPageGapLength(int value) => client.setPrintPageGapLength(value);
 
   Future<void> setPrintDarkness(int value) => client.setPrintDarkness(value);
 
   Future<void> setPrintSpeed(int value) => client.setPrintSpeed(value);
 
-  Future<void> printPng(
-    Uint8List bytes, {
-    LpPrintOptions options = const LpPrintOptions(),
-  }) {
+  Future<void> printPng(Uint8List bytes, {LpPrintOptions options = const LpPrintOptions()}) {
     return client.printPng(bytes, options: options);
   }
 
-  Future<void> printImage(
-    ui.Image image, {
-    LpPrintOptions options = const LpPrintOptions(),
-  }) {
+  Future<void> printImage(ui.Image image, {LpPrintOptions options = const LpPrintOptions()}) {
     return client.printImage(image, options: options);
   }
 
@@ -177,18 +154,17 @@ class LpApi {
     return true;
   }
 
-  Future<bool> printBitmapWithParam(
-    ui.Image bitmap,
-    Map<String, Object?> printParam,
-  ) {
-    return printBitmap(
-      bitmap,
-      options: LpPrintOptions.fromParamMap(printParam),
-    );
+  Future<bool> printBitmapWithParam(ui.Image bitmap, Map<String, Object?> printParam) {
+    return printBitmap(bitmap, options: LpPrintOptions.fromParamMap(printParam));
   }
 
   bool startJob(double widthMm, double heightMm, int rotation) {
-    _job = _LpDrawJob(widthMm: widthMm, heightMm: heightMm, rotation: rotation);
+    _job = _LpDrawJob(
+      widthMm: widthMm,
+      heightMm: heightMm,
+      rotation: rotation,
+      dpi: client.printerInfo?.deviceDpi ?? 203,
+    );
     return true;
   }
 
@@ -198,9 +174,7 @@ class LpApi {
 
   void endJob() {}
 
-  Future<bool> commitJob({
-    LpPrintOptions options = const LpPrintOptions(),
-  }) async {
+  Future<bool> commitJob({LpPrintOptions options = const LpPrintOptions()}) async {
     final job = _job;
     if (job == null) return false;
     final image = await job.toImage();
@@ -230,16 +204,7 @@ class LpApi {
     double fontSizeMm, [
     int fontStyle = LpFontStyle.regular,
   ]) {
-    return drawTextRegular(
-      text,
-      xMm,
-      yMm,
-      widthMm,
-      heightMm,
-      fontSizeMm,
-      fontStyle,
-      0,
-    );
+    return drawTextRegular(text, xMm, yMm, widthMm, heightMm, fontSizeMm, fontStyle, 0);
   }
 
   bool drawTextRegular(
@@ -266,16 +231,7 @@ class LpApi {
     double fontSizeMm,
     int fontStyle,
   ) {
-    return drawTextRegular(
-      text,
-      xMm,
-      yMm,
-      widthMm,
-      heightMm,
-      fontSizeMm,
-      fontStyle,
-      0,
-    );
+    return drawTextRegular(text, xMm, yMm, widthMm, heightMm, fontSizeMm, fontStyle, 0);
   }
 
   bool draw2DQRCode(String text, double xMm, double yMm, double sizeMm) {
@@ -291,51 +247,27 @@ class LpApi {
     double heightMm,
     double textHeightMm,
   ) {
-    return _withJob(
-      (job) => job.drawCode39LikeBarcode(text, xMm, yMm, widthMm, heightMm),
-    );
+    return _withJob((job) => job.drawCode39LikeBarcode(text, xMm, yMm, widthMm, heightMm));
   }
 
   bool draw2DDataMatrix(String text, double xMm, double yMm, double sizeMm) {
     return draw2DQRCode(text, xMm, yMm, sizeMm);
   }
 
-  bool drawImage(
-    ui.Image image,
-    double xMm,
-    double yMm,
-    double widthMm,
-    double heightMm,
-  ) {
+  bool drawImage(ui.Image image, double xMm, double yMm, double widthMm, double heightMm) {
     return _withJob((job) => job.drawImage(image, xMm, yMm, widthMm, heightMm));
   }
 
-  bool drawBitmap(
-    ui.Image image,
-    double xMm,
-    double yMm,
-    double widthMm,
-    double heightMm,
-  ) {
+  bool drawBitmap(ui.Image image, double xMm, double yMm, double widthMm, double heightMm) {
     return drawImage(image, xMm, yMm, widthMm, heightMm);
   }
 
-  bool drawRectangle(
-    double xMm,
-    double yMm,
-    double widthMm,
-    double heightMm,
-    double lineWidthMm,
-  ) {
-    return _withJob(
-      (job) => job.drawRect(xMm, yMm, widthMm, heightMm, lineWidthMm, false),
-    );
+  bool drawRectangle(double xMm, double yMm, double widthMm, double heightMm, double lineWidthMm) {
+    return _withJob((job) => job.drawRect(xMm, yMm, widthMm, heightMm, lineWidthMm, false));
   }
 
   bool fillRectangle(double xMm, double yMm, double widthMm, double heightMm) {
-    return _withJob(
-      (job) => job.drawRect(xMm, yMm, widthMm, heightMm, 0, true),
-    );
+    return _withJob((job) => job.drawRect(xMm, yMm, widthMm, heightMm, 0, true));
   }
 
   bool drawRoundRectangle(
@@ -348,16 +280,7 @@ class LpApi {
     double lineWidthMm,
   ) {
     return _withJob((job) {
-      job.drawRoundRect(
-        xMm,
-        yMm,
-        widthMm,
-        heightMm,
-        radiusX,
-        radiusY,
-        lineWidthMm,
-        false,
-      );
+      job.drawRoundRect(xMm, yMm, widthMm, heightMm, radiusX, radiusY, lineWidthMm, false);
     });
   }
 
@@ -374,50 +297,23 @@ class LpApi {
     });
   }
 
-  bool drawEllipse(
-    double xMm,
-    double yMm,
-    double widthMm,
-    double heightMm,
-    double lineWidthMm,
-  ) {
-    return _withJob(
-      (job) => job.drawOval(xMm, yMm, widthMm, heightMm, lineWidthMm, false),
-    );
+  bool drawEllipse(double xMm, double yMm, double widthMm, double heightMm, double lineWidthMm) {
+    return _withJob((job) => job.drawOval(xMm, yMm, widthMm, heightMm, lineWidthMm, false));
   }
 
   bool fillEllipse(double xMm, double yMm, double widthMm, double heightMm) {
-    return _withJob(
-      (job) => job.drawOval(xMm, yMm, widthMm, heightMm, 0, true),
-    );
+    return _withJob((job) => job.drawOval(xMm, yMm, widthMm, heightMm, 0, true));
   }
 
   bool drawCircle(double xMm, double yMm, double radiusMm, double lineWidthMm) {
-    return drawEllipse(
-      xMm - radiusMm,
-      yMm - radiusMm,
-      radiusMm * 2,
-      radiusMm * 2,
-      lineWidthMm,
-    );
+    return drawEllipse(xMm - radiusMm, yMm - radiusMm, radiusMm * 2, radiusMm * 2, lineWidthMm);
   }
 
   bool fillCircle(double xMm, double yMm, double radiusMm) {
-    return fillEllipse(
-      xMm - radiusMm,
-      yMm - radiusMm,
-      radiusMm * 2,
-      radiusMm * 2,
-    );
+    return fillEllipse(xMm - radiusMm, yMm - radiusMm, radiusMm * 2, radiusMm * 2);
   }
 
-  bool drawLine(
-    double x1Mm,
-    double y1Mm,
-    double x2Mm,
-    double y2Mm,
-    double lineWidthMm,
-  ) {
+  bool drawLine(double x1Mm, double y1Mm, double x2Mm, double y2Mm, double lineWidthMm) {
     return _withJob((job) => job.drawLine(x1Mm, y1Mm, x2Mm, y2Mm, lineWidthMm));
   }
 
@@ -430,9 +326,7 @@ class LpApi {
     List<double> intervals,
     int phase,
   ) {
-    return _withJob(
-      (job) => job.drawDashLine(x1Mm, y1Mm, x2Mm, y2Mm, lineWidthMm, intervals),
-    );
+    return _withJob((job) => job.drawDashLine(x1Mm, y1Mm, x2Mm, y2Mm, lineWidthMm, intervals));
   }
 
   bool _withJob(void Function(_LpDrawJob job) callback) {
@@ -494,18 +388,13 @@ class _LpDrawJob {
           fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
           fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
           decoration: TextDecoration.combine(<TextDecoration>[
-            if ((fontStyle & LpFontStyle.underline) != 0)
-              TextDecoration.underline,
-            if ((fontStyle & LpFontStyle.strikeout) != 0)
-              TextDecoration.lineThrough,
+            if ((fontStyle & LpFontStyle.underline) != 0) TextDecoration.underline,
+            if ((fontStyle & LpFontStyle.strikeout) != 0) TextDecoration.lineThrough,
           ]),
         ),
       ),
       textDirection: TextDirection.ltr,
-      maxLines: math.max(
-        1,
-        (_px(heightMm) / math.max(1, _px(fontSizeMm))).floor(),
-      ),
+      maxLines: math.max(1, (_px(heightMm) / math.max(1, _px(fontSizeMm))).floor()),
       ellipsis: '',
     )..layout(maxWidth: _px(widthMm));
     painter.paint(_canvas, Offset(_px(xMm), _px(yMm)));
@@ -517,10 +406,7 @@ class _LpDrawJob {
       version: QrVersions.auto,
       errorCorrectionLevel: QrErrorCorrectLevel.L,
       gapless: true,
-      eyeStyle: const QrEyeStyle(
-        eyeShape: QrEyeShape.square,
-        color: Colors.black,
-      ),
+      eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.black),
       dataModuleStyle: const QrDataModuleStyle(
         dataModuleShape: QrDataModuleShape.square,
         color: Colors.black,
@@ -532,13 +418,7 @@ class _LpDrawJob {
     _canvas.restore();
   }
 
-  void drawImage(
-    ui.Image image,
-    double xMm,
-    double yMm,
-    double widthMm,
-    double heightMm,
-  ) {
+  void drawImage(ui.Image image, double xMm, double yMm, double widthMm, double heightMm) {
     _canvas.drawImageRect(
       image,
       Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
@@ -547,13 +427,7 @@ class _LpDrawJob {
     );
   }
 
-  void drawCode39LikeBarcode(
-    String data,
-    double xMm,
-    double yMm,
-    double widthMm,
-    double heightMm,
-  ) {
+  void drawCode39LikeBarcode(String data, double xMm, double yMm, double widthMm, double heightMm) {
     final payload = data.isEmpty ? ' ' : data;
     final units = payload.length * 12 + 20;
     final unitWidth = _px(widthMm) / units;
@@ -586,10 +460,7 @@ class _LpDrawJob {
       ..color = Colors.black
       ..strokeWidth = math.max(1, _px(lineWidthMm))
       ..style = fill ? PaintingStyle.fill : PaintingStyle.stroke;
-    _canvas.drawRect(
-      Rect.fromLTWH(_px(xMm), _px(yMm), _px(widthMm), _px(heightMm)),
-      paint,
-    );
+    _canvas.drawRect(Rect.fromLTWH(_px(xMm), _px(yMm), _px(widthMm), _px(heightMm)), paint);
   }
 
   void drawRoundRect(
@@ -627,28 +498,15 @@ class _LpDrawJob {
       ..color = Colors.black
       ..strokeWidth = math.max(1, _px(lineWidthMm))
       ..style = fill ? PaintingStyle.fill : PaintingStyle.stroke;
-    _canvas.drawOval(
-      Rect.fromLTWH(_px(xMm), _px(yMm), _px(widthMm), _px(heightMm)),
-      paint,
-    );
+    _canvas.drawOval(Rect.fromLTWH(_px(xMm), _px(yMm), _px(widthMm), _px(heightMm)), paint);
   }
 
-  void drawLine(
-    double x1Mm,
-    double y1Mm,
-    double x2Mm,
-    double y2Mm,
-    double lineWidthMm,
-  ) {
+  void drawLine(double x1Mm, double y1Mm, double x2Mm, double y2Mm, double lineWidthMm) {
     final paint = Paint()
       ..color = Colors.black
       ..strokeWidth = math.max(1, _px(lineWidthMm))
       ..strokeCap = StrokeCap.square;
-    _canvas.drawLine(
-      Offset(_px(x1Mm), _px(y1Mm)),
-      Offset(_px(x2Mm), _px(y2Mm)),
-      paint,
-    );
+    _canvas.drawLine(Offset(_px(x1Mm), _px(y1Mm)), Offset(_px(x2Mm), _px(y2Mm)), paint);
   }
 
   void drawDashLine(

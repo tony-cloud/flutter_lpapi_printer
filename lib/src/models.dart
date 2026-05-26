@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'constants.dart';
+
 enum LpPrinterAddressType { ble }
 
 enum LpPrinterState {
@@ -45,22 +47,9 @@ enum LpPrintFailReason {
   other,
 }
 
-enum LpGeneralProgress {
-  start,
-  success,
-  success2,
-  failed,
-  cancelled,
-  timeout,
-  info,
-}
+enum LpGeneralProgress { start, success, success2, failed, cancelled, timeout, info }
 
-enum LpPrinterEventType {
-  discovered,
-  stateChanged,
-  printProgress,
-  progressInfo,
-}
+enum LpPrinterEventType { discovered, stateChanged, printProgress, progressInfo }
 
 enum LpPaperType {
   continuous(0),
@@ -157,7 +146,7 @@ class LpPrinterInfo {
     this.deviceType = 0,
     this.deviceVersion = '',
     this.softwareVersion = '',
-    this.deviceDpi = 203,
+    this.deviceDpi = 300,
     this.deviceWidth = 384,
     this.manufacturer = '',
     this.seriesName = '',
@@ -166,6 +155,7 @@ class LpPrinterInfo {
     this.hardwareFlags = 0,
     this.softwareFlags = 0,
     this.mcuId = '',
+    this.darknessCount,
   });
 
   final int deviceType;
@@ -182,6 +172,54 @@ class LpPrinterInfo {
   final int hardwareFlags;
   final int softwareFlags;
   final String mcuId;
+  final int? darknessCount;
+
+  int get maxPrintDarkness {
+    final count = darknessCount;
+    if (count == null || count <= 0) {
+      return LpPrintParamValue.maxPrintDarkness;
+    }
+    return (count - 1).clamp(0, 254).toInt();
+  }
+
+  int get printableWidthPx {
+    final dpi = deviceDpi <= 0 ? 300 : deviceDpi;
+    if (deviceWidth <= 0) return 384;
+    if (deviceWidth <= 128) {
+      return (deviceWidth * dpi / 25.4).round().clamp(1, 65535).toInt();
+    }
+    return deviceWidth;
+  }
+
+  double get deviceWidthMm {
+    final dpi = deviceDpi <= 0 ? 300 : deviceDpi;
+    if (deviceWidth <= 0) return 48;
+    if (deviceWidth <= 128) return deviceWidth.toDouble();
+    return deviceWidth * 25.4 / dpi;
+  }
+
+  @override
+  String toString() {
+    return 'LpPrinterInfo('
+        'deviceType: $deviceType, '
+        'deviceName: $deviceName, '
+        'deviceVersion: $deviceVersion, '
+        'softwareVersion: $softwareVersion, '
+        'deviceAddress: $deviceAddress, '
+        'deviceDpi: $deviceDpi, '
+        'deviceWidth: $deviceWidth, '
+        'deviceWidthMm: ${deviceWidthMm.toStringAsFixed(2)}, '
+        'printableWidthPx: $printableWidthPx, '
+        'manufacturer: $manufacturer, '
+        'seriesName: $seriesName, '
+        'devIntName: $devIntName, '
+        'peripheralFlags: $peripheralFlags, '
+        'hardwareFlags: $hardwareFlags, '
+        'softwareFlags: $softwareFlags, '
+        'mcuId: $mcuId, '
+        'darknessCount: $darknessCount'
+        ')';
+  }
 }
 
 class LpPrintData {
@@ -222,7 +260,7 @@ class LpPrintOptions {
   const LpPrintOptions({
     this.labelWidthMm,
     this.labelHeightMm,
-    this.dpi = 203,
+    this.dpi = 300,
     this.darkness,
     this.speed,
     this.copies = 1,
@@ -267,13 +305,11 @@ class LpPrintOptions {
 
   int? get effectiveGapType => gapType ?? paperType?.gapType;
 
-  int? get labelWidthPx => labelWidthMm == null
-      ? null
-      : (labelWidthMm! * dpi / 25.4).round().clamp(1, 65535).toInt();
+  int? get labelWidthPx =>
+      labelWidthMm == null ? null : (labelWidthMm! * dpi / 25.4).round().clamp(1, 65535).toInt();
 
-  int? get labelHeightPx => labelHeightMm == null
-      ? null
-      : (labelHeightMm! * dpi / 25.4).round().clamp(1, 65535).toInt();
+  int? get labelHeightPx =>
+      labelHeightMm == null ? null : (labelHeightMm! * dpi / 25.4).round().clamp(1, 65535).toInt();
 
   LpPrintOptions copyWith({
     double? labelWidthMm,
@@ -337,7 +373,7 @@ class LpPrintOptions {
 
     final gapType = intValue('GAP_TYPE');
     return LpPrintOptions(
-      dpi: intValue('PRINT_DPI') ?? 203,
+      dpi: intValue('PRINT_DPI') ?? 300,
       darkness: intValue('PRINT_DENSITY'),
       speed: intValue('PRINT_SPEED'),
       copies: intValue('PRINT_COPIES') ?? 1,
@@ -394,11 +430,7 @@ class LpBleEndpoint {
 }
 
 class LpRasterPage {
-  const LpRasterPage({
-    required this.width,
-    required this.height,
-    required this.bytes,
-  });
+  const LpRasterPage({required this.width, required this.height, required this.bytes});
 
   final int width;
   final int height;
