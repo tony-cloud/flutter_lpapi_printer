@@ -39,7 +39,7 @@ void main() {
     expect(printRows?.payload, <int>[1, 0, 0xf0]);
   });
 
-  test('raster builder scales to label size without printer-width padding', () async {
+  test('raster builder scales to label size and pads to printable width', () async {
     final image = await _testImage();
     final commands = await const LpRasterCommandBuilder().buildImageCommands(
       image,
@@ -57,8 +57,20 @@ void main() {
         .map(LpPacket.tryDecode)
         .firstWhere((packet) => packet?.command == 0x26);
 
-    expect(lineBytes?.payload, <int>[38]);
+    expect(lineBytes?.payload, <int>[48]);
     expect(lineCount?.payload, <int>[150]);
+  });
+
+  test('raster builder centers narrower content within printable width', () async {
+    final image = await _testImage();
+    final page = await const LpRasterCommandBuilder().rasterize(
+      image,
+      options: const LpPrintOptions(printableWidthPx: 16, alignment: LpPrintAlignment.center),
+    );
+
+    expect(page.width, 16);
+    expect(page.height, 2);
+    expect(page.bytes, Uint8List.fromList(<int>[0x0f, 0x00, 0x0f, 0x00]));
   });
 }
 

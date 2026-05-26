@@ -50,7 +50,15 @@ class LpRasterCommandBuilder {
     final maxPrintableWidth = options.printableWidthPx;
     final targetWidth = maxPrintableWidth == null || maxPrintableWidth <= 0
         ? contentWidth
-        : math.min(contentWidth, maxPrintableWidth);
+        : math.max(1, maxPrintableWidth);
+    final horizontalSlack = targetWidth - contentWidth;
+    final placementOffset = horizontalSlack <= 0
+        ? 0
+        : switch (options.alignment) {
+            LpPrintAlignment.left => 0,
+            LpPrintAlignment.center => horizontalSlack ~/ 2,
+            LpPrintAlignment.right => horizontalSlack,
+          };
     final overflow = contentWidth - targetWidth;
     final cropOffset = overflow <= 0
         ? 0
@@ -79,7 +87,7 @@ class LpRasterCommandBuilder {
         var black = luma < threshold;
         if (options.antiColor) black = !black;
         if (!black) continue;
-        final targetX = x + marginLeft - cropOffset;
+        final targetX = x + marginLeft + placementOffset - cropOffset;
         if (targetX < 0 || targetX >= targetWidth) continue;
         final byteIndex = targetY * bytesPerRow + targetX ~/ 8;
         output[byteIndex] |= 0x80 >> (targetX & 0x7);
