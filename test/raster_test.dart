@@ -61,6 +61,34 @@ void main() {
     expect(lineCount?.payload, <int>[150]);
   });
 
+  test('quarter turns rotate the canvas and exchange width and height', () async {
+    final image = await _testImage();
+
+    for (final direction in <LpPrintDirection>[
+      LpPrintDirection.right90,
+      LpPrintDirection.left270,
+    ]) {
+      final commands = await const LpRasterCommandBuilder().buildImageCommands(
+        image,
+        options: LpPrintOptions(
+          labelWidthMm: 8,
+          labelHeightMm: 2,
+          dpi: 254,
+          direction: direction,
+        ),
+      );
+      final lineBytes = commands
+          .map(LpPacket.tryDecode)
+          .firstWhere((packet) => packet?.command == 0x27);
+      final lineCount = commands
+          .map(LpPacket.tryDecode)
+          .firstWhere((packet) => packet?.command == 0x26);
+
+      expect(lineBytes?.payload, <int>[3], reason: direction.name);
+      expect(lineCount?.payload, <int>[80], reason: direction.name);
+    }
+  });
+
   test('raster builder centers narrower content within printable width', () async {
     final image = await _testImage();
     final page = await const LpRasterCommandBuilder().rasterize(

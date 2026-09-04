@@ -166,10 +166,14 @@ class LpRasterCommandBuilder {
   }
 
   Future<ui.Image> _prepareImage(ui.Image image, LpPrintOptions options) async {
-    final width = options.labelWidthPx ?? image.width;
-    final height = options.labelHeightPx ?? image.height;
-    if (width == image.width &&
-        height == image.height &&
+    final unrotatedWidth = options.labelWidthPx ?? image.width;
+    final unrotatedHeight = options.labelHeightPx ?? image.height;
+    final swapsDimensions = options.direction == LpPrintDirection.right90 ||
+        options.direction == LpPrintDirection.left270;
+    final width = swapsDimensions ? unrotatedHeight : unrotatedWidth;
+    final height = swapsDimensions ? unrotatedWidth : unrotatedHeight;
+    if (unrotatedWidth == image.width &&
+        unrotatedHeight == image.height &&
         options.direction == LpPrintDirection.normal) {
       return image;
     }
@@ -184,7 +188,12 @@ class LpRasterCommandBuilder {
         canvas.drawImageRect(
           image,
           source,
-          ui.Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
+          ui.Rect.fromLTWH(
+            0,
+            0,
+            unrotatedWidth.toDouble(),
+            unrotatedHeight.toDouble(),
+          ),
           imagePaint,
         );
         break;
@@ -194,7 +203,12 @@ class LpRasterCommandBuilder {
         canvas.drawImageRect(
           image,
           source,
-          ui.Rect.fromLTWH(0, 0, height.toDouble(), width.toDouble()),
+          ui.Rect.fromLTWH(
+            0,
+            0,
+            unrotatedWidth.toDouble(),
+            unrotatedHeight.toDouble(),
+          ),
           imagePaint,
         );
         break;
@@ -204,7 +218,12 @@ class LpRasterCommandBuilder {
         canvas.drawImageRect(
           image,
           source,
-          ui.Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
+          ui.Rect.fromLTWH(
+            0,
+            0,
+            unrotatedWidth.toDouble(),
+            unrotatedHeight.toDouble(),
+          ),
           imagePaint,
         );
         break;
@@ -214,7 +233,12 @@ class LpRasterCommandBuilder {
         canvas.drawImageRect(
           image,
           source,
-          ui.Rect.fromLTWH(0, 0, height.toDouble(), width.toDouble()),
+          ui.Rect.fromLTWH(
+            0,
+            0,
+            unrotatedWidth.toDouble(),
+            unrotatedHeight.toDouble(),
+          ),
           imagePaint,
         );
         break;
